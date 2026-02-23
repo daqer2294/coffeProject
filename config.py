@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass
 from zoneinfo import ZoneInfo
 
+
 BUSINESS_TZ = ZoneInfo("Asia/Irkutsk")
 
 
@@ -12,14 +13,26 @@ class Settings:
     ADMIN_IDS: list[int]
 
 
+def _parse_admin_ids(raw: str | None) -> list[int]:
+    if not raw:
+        return []
+    return [int(x.strip()) for x in raw.split(",") if x.strip()]
+
+
 def get_settings() -> Settings:
+    bot_token = os.getenv("BOT_TOKEN")
+    database_url = os.getenv("DATABASE_URL")
+    admin_ids = _parse_admin_ids(os.getenv("ADMIN_IDS"))
+
+    if not bot_token:
+        raise RuntimeError("BOT_TOKEN is not set")
+    if not database_url:
+        raise RuntimeError("DATABASE_URL is not set")
+
     return Settings(
-        BOT_TOKEN=os.getenv("BOT_TOKEN", "8090286212:AAGZH7pP9au6rbOCGYUXHKGyFrGrHLy-s1A"),
-        DATABASE_URL=os.getenv(
-            "DATABASE_URL",
-            "postgresql+asyncpg://daqer@localhost:5432/coffee_db"
-        ),
-        ADMIN_IDS=[398548230, 312805873]  # сюда вставишь свой telegram id
+        BOT_TOKEN=bot_token,
+        DATABASE_URL=database_url,
+        ADMIN_IDS=admin_ids,
     )
 
 
